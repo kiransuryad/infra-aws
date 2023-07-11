@@ -1,0 +1,80 @@
+Scope	Task	Task Description	Details 1	Details 2
+VPC	Create VPC	Create a new VPC for the CI environment	"Region: eu-west-2
+Name: vpc-nonprod-app-ew2-ci-(10.36.0.0/19)
+CIDR: 10.36.0.0/19
+Tenancy: Default"	
+VPC	Create Subnets	"Create 14 subnets across 2 availability zones
+"	"VPC: vpc-nonprod-app-ew2-ci-(10.36.0.0/19)
+AZ: eu-west-2a
+sub-nonprod-app-ew2-ci-app-ew2a-(10.36.0.0/21)
+sub-nonprod-app-ew2-ci-api-ew2a-(10.36.18.0/26)
+sub-nonprod-app-ew2-ci-data-ew2a-(10.36.16.0/24)
+sub-nonprod-app-ew2-ci-tools-ew2a-(10.36.19.0/26)
+sub-nonprod-app-ew2-ci-msk-ew2a-(10.36.20.0/28)
+sub-nonprod-app-ew2-ci-infra-ew2a-(10.36.21.0/24)
+sub-nonprod-app-ew2-ci-tgw-ew2a-(10.36.31.0/28)
+AZ: eu-west-2b 
+sub-nonprod-app-ew2-ci-app-ew2b-(10.36.8.0/21)
+sub-nonprod-app-ew2-ci-api-ew2b-(10.36.18.128/26)
+sub-nonprod-app-ew2-ci-data-ew2b-(10.36.17.0/24)
+sub-nonprod-app-ew2-ci-tools-ew2b-(10.36.19.128/26)
+sub-nonprod-app-ew2-ci-msk-ew2b-(10.36.20.128/28)
+sub-nonprod-app-ew2-ci-infra-ew2b-(10.36.22.0/24)
+sub-nonprod-app-ew2-ci-tgw-ew2b-(10.36.31.128/28)"	"
+
+10.36.0.0/21
+10.36.18.0/26
+10.36.16.0/24
+10.36.19.0/26
+10.36.20.0/28
+10.36.21.0/24
+10.36.31.0/28
+
+10.36.8.0/21
+10.36.18.128/26
+10.36.17.0/24
+10.36.19.128/26
+10.36.20.128/28
+10.36.22.0/24
+10.36.31.128/28"
+VPC	Create route table 	Create a route table and associate all 14 subnets	"Name: rtb-nonprod-sec-ew2-ci
+VPC: vpc-nonprod-app-ew2-ci-(10.36.0.0/19)"	
+VPC	Create Transit Gateway Attachment	Create a Transit Gateway Attachment for the CI VPC	Name: tgw-attach-nonprod-sec-ew2-ci-(10.36.0.0/19)	"Transit Gateway ID: tgw-0faffe01812d48d37
+Attachment Type: VPC
+DNS Support: Yes
+Subnet: sub-nonprod-app-ew2-ci-tgw-ew2a-(10.36.31.0/28)
+Subnet:  sub-nonprod-app-ew2-ci-tgw-ew2b-(10.36.31.128/28)"
+Management Account	Accept Transit Gateway Attachment	In the Management account Accept the transit gateway attachment share in Resource Access Manager 	TGWA: tgw-attach-nonprod-sec-ew2-ci-(10.36.0.0/19)	
+Management Account	Associate Transit Gateway Attachment	In the Management account Associate the transit gateway attachment with the Spoke transit gateway route table 	Route Table: rtb-tgw-mgmt-sec-ew2-vpc-spoke	
+Management Account	Propagate Routes	In the Management account Propagate the routes for the new transit gateway attachment in the FW transit gateway route table	Route Table: rtb-tgw-mgmt-sec-ew2-vpc-mgmt-sec-ew2-fw	"Transit Gateway ID: tgw-0faffe01812d48d37
+Transit Gateway route table id: tgw-rtb-051fbd6b09836ca76
+Attachment to propagate: tgw-attach-nonprod-sec-ew2-xxx-(10.36.0.0/19)"
+VPC	Add Default Route	Add a default route to the CI route table	Route Table: rtb-nonprod-sec-ew2-ci	"Destination: 0.0.0.0/0
+Target: tgw-0faffe01812d48d37"
+Non-Prod Account	Associate Route 53 Rules	In the Non-Prod account associate the shared Route 53 rules to the new VPC	VPC: vpc-nonprod-app-ew2-ci-(10.36.0.0/19)	"ID: rslvr-rr-d4c3c3c4e4e40a0b5
+ID: rslvr-rr-dc97086e27924a489
+ID: rslvr-rr-8daa5a59564140089"
+VPC	Create Security Groups	Create Security Group for VPC endpoints	Name: security-group-vpc-nonprod-sec-ew2-ci-vpce	"Inbound rule
+Name: allow HTTPS for ec2 and ssm
+Type: HTTPS
+Source: 10.36.0.0/19
+Description: allow HTTPS for ec2 and ssm"
+VPC	Create Endpoints	Create VPC Endpoints in the CI VPC for EC2 & SSM	"Name: vpce-nonprod-sec-ew2-ci-ec2
+Name: vpce-nonprod-sec-ew2-ci-ec2messages
+Name: vpce-nonprod-sec-ew2-ci-ssm
+Name: vpce-nonprod-sec-ew2-ci-ssmmessages"	"Service: com.amazonaws.eu-west-2.ec2
+Service: com.amazonaws.eu-west-2.ec2messages
+Service: com.amazonaws.eu-west-2.ssm
+Service: com.amazonaws.eu-west-2.ssmmessages
+Subnet: sub-nonprod-app-ew2-ci-infra-ew2a-(10.36.21.0/24)
+Subnet: sub-nonprod-app-ew2-ci-infra-ew2b-(10.36.22.0/24)
+Security Group: security-group-vpc-nonprod-sec-ew2-ci-vpce"
+VPC	Delete rules from Default Security Group	Delete all rules from the Default security group. This is required for security & compliance		
+VPC	Modify Network ACL Inbound Rules	Modify the network ACL inbound rules to only allow traffic from 10.0.0.0/8. This is required for security & compliance	"Rule Number: 100
+Type: All traffic
+Source: 10.0.0.0/8
+Allow/Deny: Allow"	
+VPC	Create and assign Tags	Create the mandatory tags for each resource and assign them	TBC	
+				
+				
+				
